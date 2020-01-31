@@ -14,7 +14,7 @@ import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizatio
 
 public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
 
-    private static final String CLIENT_UUID_PARAM = "uuidClient";
+    public static final String CLIENT_UUID_PARAM = "uuidClient";
     private static Log log = LogFactory.getLog(CustomGrantHandler.class);
 
     @Override
