@@ -9,9 +9,6 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
-import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
@@ -32,8 +29,9 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
         super.validateGrant(tokReqMsgCtx);
 
         RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
-        String uuidClient = null;
+        String uuidClient = null;  //UUID sent by Client
         String authorizationCode = null;
+        String uuidIS = null; //UUID in IS side
         // find out Uuid Parameter
         for (RequestParameter parameter : parameters) {
             if (CLIENT_UUID_PARAM.equals(parameter.getKey())) {
@@ -53,9 +51,6 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
         tokReqMsgCtx.setAuthorizedUser(user);
         tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
 
-
-        String uuidIS = null;
-
         try {
             uuidIS = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .getUserClaimValue(user.getUserName(), "http://wso2.org/claims/organization", null);
@@ -63,13 +58,12 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
             e.printStackTrace();
         }
 
-        //if(request.getParameter("uuidClient").isEmpty()){ //Checking if UUID sent by the user is null
         if (uuidClient != null) {//Checking if UUID sent by the user is null
             if (uuidIS != null) {
                 if (uuidIS.equals(uuidClient)) {
                     return true;   //valid user from same device
                 } else {
-                    return false; //new device invalid user
+                    throw new IdentityOAuth2Exception("Invalid User");//new device invalid user
                 }
             } else {
                 //Invalid Request
