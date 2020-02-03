@@ -30,7 +30,7 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
         super.validateGrant(tokReqMsgCtx);
-        OAuth2AccessTokenReqDTO tokenReq = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
+
         RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
         String uuidClient = null;
         String authorizationCode = null;
@@ -46,26 +46,22 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
             }
         }
 
-        tokenReq.setAuthorizationCode(authorizationCode);
+        tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(authorizationCode);
+        OAuth2AccessTokenReqDTO tokenReq = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         AuthzCodeDO authzCodeBean = getPersistedAuthzCode(tokenReq);
-
-        OAuthAppDO appInfo;
-        OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
-        String uuidIS = null;
         AuthenticatedUser user = authzCodeBean.getAuthorizedUser();
-        try {
-            appInfo = oAuthAppDAO.getAppInformation(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId());
-//            if (appInfo.getApplicationName().equals("Playground_SP")) {    // Name of the Application
+        tokReqMsgCtx.setAuthorizedUser(user);
+        tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
 
-                uuidIS = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
-                        .getUserClaimValue(user.getUserName(), "http://wso2.org/claims/organization", null);
-//            }
-        } catch (InvalidOAuthClientException e) {
-            log.error(e);
+
+        String uuidIS = null;
+
+        try {
+            uuidIS = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                    .getUserClaimValue(user.getUserName(), "http://wso2.org/claims/organization", null);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             e.printStackTrace();
         }
-
 
         //if(request.getParameter("uuidClient").isEmpty()){ //Checking if UUID sent by the user is null
         if (uuidClient != null) {//Checking if UUID sent by the user is null
