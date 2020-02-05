@@ -51,7 +51,10 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
             uuidIS = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .getUserClaimValue(user.getUserName(), "http://wso2.org/claims/organization", null);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            e.printStackTrace();
+            if (log.isDebugEnabled()) {
+                log.debug("org.wso2.carbon.user.api.UserStoreException", e);
+            }
+            throw new IdentityOAuth2Exception("Invalid User");
         }
 
         if (uuidClient != null) {//Checking if UUID sent by the user is null
@@ -59,15 +62,15 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
                 if (uuidIS.equals(uuidClient)) {
                     return true;   //valid user from same device
                 } else {
-                    throw new IdentityOAuth2Exception("Invalid User");//new device invalid user
+                    throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices.Please contact Bank");//new device invalid user
                 }
             } else {
                 //Invalid Request
-                throw new IdentityOAuth2Exception("Invalid User");
+                throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices.Please contact Bank");
             }
         } else {
             //Invalid Request
-            throw new IdentityOAuth2Exception("Invalid User");
+            throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices.Please contact Bank");
         }
 
     }
