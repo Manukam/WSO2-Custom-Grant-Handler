@@ -12,14 +12,14 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
-import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationCodeGrantHandler;
+import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 
 import java.io.*;
 import java.util.Properties;
 
-public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
+public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
 
     public static final String CLIENT_UUID_PARAM = "uuidClient";
     public static Properties properties = new Properties();
