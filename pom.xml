@@ -15,9 +15,19 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
+            <groupId>org.wso2.carbon.identity.inbound.auth.oauth2</groupId>
             <artifactId>org.wso2.carbon.identity.oauth</artifactId>
-            <version>5.0.7</version>
+            <version>6.0.53</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.inbound.auth.oauth2</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
+            <version>6.0.53</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.mgt</artifactId>
+            <version>5.12.153</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
