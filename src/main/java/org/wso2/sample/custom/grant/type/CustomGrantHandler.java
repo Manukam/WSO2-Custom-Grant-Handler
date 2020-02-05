@@ -12,14 +12,14 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
-import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationCodeGrantHandler;
+import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 
 import java.io.*;
 import java.util.Properties;
 
-public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
+public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
 
     public static final String CLIENT_UUID_PARAM = "uuidClient";
     public static final String AUTHORIZATION_CODE_PARAM = "code";
@@ -29,11 +29,11 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
         super.validateGrant(tokReqMsgCtx);
-        if(properties.isEmpty()){
+        if (properties.isEmpty()) {
             readPropertiesFromFile();
         }
         String singleDeviceClaim = (properties.getProperty("Single.Device.Claim").trim());
-        if(singleDeviceClaim.isEmpty()){
+        if (singleDeviceClaim.isEmpty()) {
             log.info("Single Device Claim Value is not configured. Skipping the validation");
             return true;
         }
@@ -64,7 +64,7 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
                     .getUserClaimValue(user.getUserName(), singleDeviceClaim, null);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             if (log.isDebugEnabled()) {
-                log.debug("org.wso2.carbon.user.api.UserStoreException", e);
+                log.debug("User Store Exception", e);
             }
             throw new IdentityOAuth2Exception("Invalid User");
         }
