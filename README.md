@@ -25,4 +25,19 @@
 ``` 
 * Save the file.
 
-* Start the WSO2 IS server to observe the changes.
+* Start the WSO2 IS server and create a Service Provider and configure a OAuth/OpenID Connect Configuration.
+
+* The CustomGrantHandler will be visible in the allowed grant types. Add the CustomGrantHandler to the allowed grant types by ticking it.
+
+* To test the Custom Grant type, invoke the authorization endpoint and sign in with a user an obtain an authorization code.
+A sample request is shown below.
+```
+https://localhost:9443/oauth2/authorize?response_type=code&redirect_uri=http://localhost:8080/playground2/oauth2client&client_id=<client_id>&scope=somescope_code
+```
+
+* Now invoke the token endpoint with the grant_type set as CustomGrantHandler and with the Client UUID and the authorization code. A sample request is shown below.
+
+```
+curl -k -X POST https://localhost:9443/oauth2/token -u <client_id>:<client_secret> -H 'Content-Type: application/x-www-form-urlencoded' -d 'grant_type=CustomGrantHandler&code=<authorization_code>&uuidClient=<client_UUID>&redirect_uri=http://localhost:8080/playground2/oauth2client'
+```
+
