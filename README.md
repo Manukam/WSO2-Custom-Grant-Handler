@@ -11,7 +11,7 @@
 * Navigate to the `/target` folder in the project directory and copy and paste the `WSO2-Custom-Grant-Type-1.0-SNAPSHOT` to `IS_HOME/repository/components/lib`
 
 * Navigate to `IS_HOME/repository/conf/identity` and open the **identity.xml** file and add the following lines.
-- To configure the Custom Grant type as a new grant type in WSO2 Identity Server. Add the following configuration under **<SupportedGrantTypes>**
+- To configure the Custom Grant type as a new grant type in WSO2 Identity Server. Add the following configuration under **SupportedGrantTypes**
 ```
 <SupportedGrantType>
     <GrantTypeName>CustomGrantHandler</GrantTypeName>
