@@ -12,7 +12,6 @@ import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 
 import javax.xml.namespace.QName;
 import java.util.Iterator;
-import java.util.Properties;
 
 public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
 
@@ -20,16 +19,19 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
     public static final String CLIENT_PARAMETER = "clientParameter";
     public static final String SINGLE_DEVICE_CONFIG = "SingleDeviceConfigs";
     public static final String CONFIG_ELEM_OAUTH = "OAuth";
-    public static String CLIENT_UUID_PARAM = "uuidClient";
+    public static String CLIENT_UUID_PARAM;
     public static String USER_CLAIM;
     private static final String AUTHORIZATION_CODE_PARAM = "code";
-    private static Properties properties = new Properties();
     private static Log log = LogFactory.getLog(CustomGrantHandler.class);
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
         String uuidClient = null;  //UUID sent by Client
         String uuidIS; //UUID in IS side
+        if (CLIENT_UUID_PARAM == null || USER_CLAIM == null) {
+            readPropertiesFromFile();
+        }
+
         for (RequestParameter parameter : tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()) {
             if (AUTHORIZATION_CODE_PARAM.equals(parameter.getKey())) {
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(parameter.getValue()[0]);
@@ -38,13 +40,8 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
                 uuidClient = parameter.getValue()[0];
             }
         }
-//        tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()[0].getValue()[0].toString());
         tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
         super.validateGrant(tokReqMsgCtx);
-
-        if (CLIENT_UUID_PARAM == null || USER_CLAIM == null) {
-            readPropertiesFromFile();
-        }
 
         try {
             uuidIS = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()

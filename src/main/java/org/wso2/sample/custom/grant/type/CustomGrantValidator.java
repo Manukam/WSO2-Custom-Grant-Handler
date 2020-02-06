@@ -14,6 +14,6 @@ public class CustomGrantValidator extends AuthorizationCodeGrantValidator{
 
     public CustomGrantValidator() {
         // device id must be in the request parameter
-        this.requiredParams.add(CustomGrantHandler.CLIENT_UUID_PARAM);
+//        this.requiredParams.add(CustomGrantHandler.CLIENT_UUID_PARAM);
     }
 }
