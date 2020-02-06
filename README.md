@@ -17,7 +17,6 @@
     <GrantTypeName>CustomGrantHandler</GrantTypeName>
     <GrantTypeHandlerImplClass>org.wso2.sample.custom.grant.type.CustomGrantHandler</GrantTypeHandlerImplClass>
     <GrantTypeValidatorImplClass>org.wso2.sample.custom.grant.type.CustomGrantValidator</GrantTypeValidatorImplClass>
-    <IdTokenAllowed>true</IdTokenAllowed>
 </SupportedGrantType>
 ``` 
  - To define the name of the **parameter** name of the UUID sent in the request and the **claim URI** the claim the UUID should be saved in.
