@@ -3,17 +3,10 @@ package org.wso2.sample.custom.grant.type;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.oauth.cache.OAuthCache;
-import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
-import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
-import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
-import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
-import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationCodeGrantHandler;
 
@@ -29,13 +22,18 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
+        String uuidClient = null;  //UUID sent by Client
+        String uuidIS; //UUID in IS side
         for (RequestParameter parameter : tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()) {
             if (AUTHORIZATION_CODE_PARAM.equals(parameter.getKey())) {
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(parameter.getValue()[0]);
-                break;
+
+            } else if (CLIENT_UUID_PARAM.equals(parameter.getKey())) {
+                uuidClient = parameter.getValue()[0];
             }
         }
         tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()[0].getValue()[0].toString());
+        tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
         super.validateGrant(tokReqMsgCtx);
         if (properties.isEmpty()) {
             readPropertiesFromFile();
@@ -45,31 +43,10 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
             log.info("Single Device Claim Value is not configured. Skipping the validation");
             return true;
         }
-        RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
-        String uuidClient = null;  //UUID sent by Client
-        String authorizationCode = null;
-        String uuidIS ; //UUID in IS side
-        // find out Uuid Parameter
-        for (RequestParameter parameter : parameters) {
-            if (CLIENT_UUID_PARAM.equals(parameter.getKey())) {
-                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-                    uuidClient = parameter.getValue()[0];
-                }
-            } else if (AUTHORIZATION_CODE_PARAM.equals(parameter.getKey())) {
-                authorizationCode = parameter.getValue()[0];
-            }
-        }
-
-        tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(authorizationCode);
-        OAuth2AccessTokenReqDTO tokenReq = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
-        AuthzCodeDO authzCodeBean = getPersistedAuthzCode(tokenReq);
-        AuthenticatedUser user = authzCodeBean.getAuthorizedUser();
-        tokReqMsgCtx.setAuthorizedUser(user);
-        tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
 
         try {
             uuidIS = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
-                    .getUserClaimValue(user.getUserName(), singleDeviceClaim, null);
+                    .getUserClaimValue(tokReqMsgCtx.getAuthorizedUser().getUserName(), singleDeviceClaim, null);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             if (log.isDebugEnabled()) {
                 log.debug("User Store Exception", e);
@@ -82,41 +59,17 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
                 if (uuidIS.equals(uuidClient)) {
                     return true;   //valid user from same device
                 } else {
-                    throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices.Please contact Bank");//new device invalid user
+                    throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices. Please contact Bank");//new device invalid user
                 }
             } else {
                 //Invalid Request
-                throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices.Please contact Bank");
+                throw new IdentityOAuth2Exception("Invalid Login. Please contact the Bank");
             }
         } else {
             //Invalid Request
-            throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices.Please contact Bank");
+            throw new IdentityOAuth2Exception("Invalid Login. Please contact the Bank");
         }
 
-    }
-
-    private AuthzCodeDO getPersistedAuthzCode(OAuth2AccessTokenReqDTO tokenReqDTO) {
-
-        AuthzCodeDO authzCodeDO;
-        // If cache is enabled, check in the cache first.
-        if (cacheEnabled) {
-            OAuthCacheKey cacheKey = new OAuthCacheKey(OAuth2Util.buildCacheKeyStringForAuthzCode(
-                    tokenReqDTO.getClientId(), tokenReqDTO.getAuthorizationCode()));
-            authzCodeDO = (AuthzCodeDO) OAuthCache.getInstance().getValueFromCache(cacheKey);
-            if (authzCodeDO != null) {
-                return authzCodeDO;
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Authorization Code Info was not available in cache for client id : "
-                            + tokenReqDTO.getClientId());
-                }
-            }
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Retrieving authorization code information from db for client id : " + tokenReqDTO.getClientId());
-        }
-
-        return null;
     }
 
     private static void readPropertiesFromFile() {
