@@ -15,19 +15,27 @@ import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
+import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationCodeGrantHandler;
 
 import java.io.*;
 import java.util.Properties;
 
-public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
+public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
 
-    public static final String CLIENT_UUID_PARAM = "uuidClient";
-    public static final String AUTHORIZATION_CODE_PARAM = "code";
-    public static Properties properties = new Properties();
+    private static final String CLIENT_UUID_PARAM = "uuidClient";
+    private static final String AUTHORIZATION_CODE_PARAM = "code";
+    private static Properties properties = new Properties();
     private static Log log = LogFactory.getLog(CustomGrantHandler.class);
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
+        for (RequestParameter parameter : tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()) {
+            if (AUTHORIZATION_CODE_PARAM.equals(parameter.getKey())) {
+                tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(parameter.getValue()[0]);
+                break;
+            }
+        }
+        tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAuthorizationCode(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()[0].getValue()[0].toString());
         super.validateGrant(tokReqMsgCtx);
         if (properties.isEmpty()) {
             readPropertiesFromFile();
@@ -40,7 +48,7 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
         RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
         String uuidClient = null;  //UUID sent by Client
         String authorizationCode = null;
-        String uuidIS = null; //UUID in IS side
+        String uuidIS ; //UUID in IS side
         // find out Uuid Parameter
         for (RequestParameter parameter : parameters) {
             if (CLIENT_UUID_PARAM.equals(parameter.getKey())) {
@@ -66,7 +74,7 @@ public class CustomGrantHandler extends AbstractAuthorizationGrantHandler {
             if (log.isDebugEnabled()) {
                 log.debug("User Store Exception", e);
             }
-            throw new IdentityOAuth2Exception("Invalid User");
+            throw new IdentityOAuth2Exception("Invalid User Cannot find user store claim");
         }
 
         if (uuidClient != null) {//Checking if UUID sent by the user is null
