@@ -27,7 +27,7 @@
 
 * Start the WSO2 IS server and create a Service Provider and configure a OAuth/OpenID Connect Configuration.
 
-* The CustomSingleDeviceGrantType will be visible in the allowed grant types. Add the CustomGrantHandler to the allowed grant types by ticking it.
+* The CustomSingleDeviceGrantType will be visible in the allowed grant types. Add the CustomSingleDeviceGrantType to the allowed grant types by ticking it.
 
 * To test the Custom Grant type, invoke the authorization endpoint and sign in with a user an obtain an authorization code.
 A sample request is shown below.
