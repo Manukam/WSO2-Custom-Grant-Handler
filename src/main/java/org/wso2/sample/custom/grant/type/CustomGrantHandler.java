@@ -96,7 +96,7 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
     private void parseSingleDeviceConfig(OMElement singleDeviceConfig) {
         if (singleDeviceConfig == null) {
             if(log.isDebugEnabled()){
-                log.info("Single Device Validation Configs can not be found");
+                log.debug("Single Device Validation Configs can not be found");
             }
             return;
         }
