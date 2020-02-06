@@ -9,6 +9,7 @@ import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationCodeGrantHandler;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import javax.xml.namespace.QName;
 import java.util.Iterator;
@@ -61,14 +62,24 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
                     throw new IdentityOAuth2Exception("Invalid Login.Cannot login with multiple devices. Please contact Bank");//new device invalid user
                 }
             } else {
-                //Invalid Request
-                throw new IdentityOAuth2Exception("Invalid Login. Please contact the Bank");
+                //New User
+                try {
+                    CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager().setUserClaimValue(tokReqMsgCtx.getAuthorizedUser().getUserName(),USER_CLAIM, uuidClient, null);
+                    if(log.isDebugEnabled()){
+                        log.debug("User Claim for Single Device validation initialized with the new value");
+                    }
+                } catch (UserStoreException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User Store Exception when saving the new UUID claim", e);
+                    }
+                    throw new IdentityOAuth2Exception("User Store Exception when saving the new UUID claim");
+                }
             }
         } else {
             //Invalid Request
             throw new IdentityOAuth2Exception("Invalid Login. Please contact the Bank");
         }
-
+        return true;
     }
 
     private void readPropertiesFromFile() {
