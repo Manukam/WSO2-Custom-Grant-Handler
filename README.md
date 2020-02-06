@@ -1,6 +1,6 @@
 # WSO2 Custom Grant Type
  
-> A Custom Grant Type for WSO2 Identity Server that only allow one device to be used per user. This grant type validates the UUID parameter sent by the client application against the user's saved UUID and only issue an token if both the UUIDs matches.
+> A Custom Grant Type for WSO2 Identity Server that only allow one device to be used per user. 
 
 ## Build Setup
 
