@@ -20,7 +20,7 @@ public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
     public static final String CLIENT_PARAMETER = "clientParameter";
     public static final String SINGLE_DEVICE_CONFIG = "SingleDeviceConfigs";
     public static final String CONFIG_ELEM_OAUTH = "OAuth";
-    public static String CLIENT_UUID_PARAM;
+    public static String CLIENT_UUID_PARAM = "uuidClient";
     public static String USER_CLAIM;
     private static final String AUTHORIZATION_CODE_PARAM = "code";
     private static Properties properties = new Properties();
