@@ -1,4 +1,4 @@
-# WSO2 Custom Grant Type
+# WSO2-Custom-Single-Device-Grant-Type
  
 > A Custom Grant Type for WSO2 Identity Server that only allow one device to be used per user. 
 
