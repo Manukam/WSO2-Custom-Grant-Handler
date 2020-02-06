@@ -19,7 +19,7 @@
     <GrantTypeValidatorImplClass>org.wso2.sample.custom.grant.type.CustomGrantValidator</GrantTypeValidatorImplClass>
 </SupportedGrantType>
 ``` 
- - To define the name of the **parameter** name of the UUID sent in the request and the **claim URI** the claim the UUID should be saved in.
+ - To define the name of the **parameter** name of the UUID sent in the request and the **claim URI** the claim the UUID should be saved in. Add the following under **OAuth** in **identity.xml**
 ```
 <SingleDeviceConfigs claimURI="http://wso2.org/claims/organization" clientParameter="uuidClient"></SingleDeviceConfigs>
 ``` 
