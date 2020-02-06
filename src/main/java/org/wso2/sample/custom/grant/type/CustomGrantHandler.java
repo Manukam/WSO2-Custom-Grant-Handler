@@ -22,7 +22,7 @@ import java.util.Properties;
 
 public class CustomGrantHandler extends AuthorizationCodeGrantHandler {
 
-    private static final String CLIENT_UUID_PARAM = "uuidClient";
+    public static final String CLIENT_UUID_PARAM = "uuidClient";
     private static final String AUTHORIZATION_CODE_PARAM = "code";
     private static Properties properties = new Properties();
     private static Log log = LogFactory.getLog(CustomGrantHandler.class);
